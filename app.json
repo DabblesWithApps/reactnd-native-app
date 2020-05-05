@@ -1,0 +1,17 @@
+{
+  "name": "reactnd-native-app",
+  "displayName": "reactnd-native-app",
+  "expo": {
+    "name": "reactnd-native-app",
+    "slug": "reactnd-native-app",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
