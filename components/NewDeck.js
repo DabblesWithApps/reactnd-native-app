@@ -1,19 +1,36 @@
 import React from 'react'
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { AsyncStorage, View, Text, StyleSheet, TextInput, TouchableOpacity, TouchableHighlightBase } from 'react-native'
+import { STORAGE_KEY } from '../constants'
 
-export default function NewDeck() {
-    return (
-        <View style={styles.newDeck}>
-            <Text>What is the title of your new deck?</Text>
-            <TextInput
-                placeholder="Deck Title"
-                style={{ alignSelf: 'stretch', height: 40, borderColor: 'gray', borderWidth: 1, padding: 10, margin: 10 }}
-            />
-            <TouchableOpacity style={styles.submitBtn}>
-                <Text style={{ color: 'white' }}>Submit</Text>
-            </TouchableOpacity>
-        </View>
-    )
+export default class NewDeck extends React.Component {
+    state = {
+        title: ''
+    }
+    handleTextChange = (text) => {
+        this.setState({
+            title: text
+        })
+    }
+    render() {
+        const { title } = this.state
+        return (
+            <View style={styles.newDeck} >
+                <Text>What is the title of your new deck?</Text>
+                <TextInput onChangeText={this.handleTextChange}
+                    placeholder="Deck Title"
+                    value={this.state.title}
+                    style={{ alignSelf: 'stretch', height: 40, borderColor: 'gray', borderWidth: 1, padding: 10, margin: 10 }}
+                />
+                <TouchableOpacity style={styles.submitBtn} onPress={() => {
+                    AsyncStorage.mergeItem(STORAGE_KEY, JSON.stringify({
+                        [title]: { title: title }
+                    })).then(console.log("it worked."))
+                }}>
+                    <Text style={{ color: 'white' }}>Submit</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
 }
 
 const styles = StyleSheet.create({

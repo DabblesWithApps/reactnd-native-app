@@ -2,16 +2,17 @@ import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
-export default function Deck() {
+export default function Deck({ route }) {
+    const { deck } = route.params
     const navigation = useNavigation()
     return (
         <View style={styles.decks}>
-            <Text>Title</Text>
-            <Text>Number of Cards</Text>
-            <TouchableOpacity onPress={() => { navigation.push('Add Card') }}>
+            <Text>Title: {deck.title}</Text>
+            <Text>Card Count: {deck.questions ? deck.questions.length : 0}</Text>
+            <TouchableOpacity onPress={() => { navigation.push('Add Card', { deck }) }}>
                 <Text>Add Card</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { navigation.push('Quiz') }}>
+            <TouchableOpacity onPress={() => { navigation.push('Quiz', { deck }) }}>
                 <Text>Quiz</Text>
             </TouchableOpacity>
         </View>
