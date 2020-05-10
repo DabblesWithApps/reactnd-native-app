@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage } from 'react-na
 import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native'
 import { STORAGE_KEY } from '../constants'
+import { getDecks } from '../helpers/api'
+import { connect } from 'react-redux'
+import { receiveDecks } from '../actions'
 
 const DeckLink = ({ deck }) => {
     const navigation = useNavigation()
@@ -13,21 +16,18 @@ const DeckLink = ({ deck }) => {
     )
 }
 
-export default class Decks extends React.Component {
-    state = {
-        data: null
-    }
+class Decks extends React.Component {
     componentDidMount() {
-        return AsyncStorage.getItem(STORAGE_KEY)
-            .then((data) => {
-                console.log(JSON.parse(data))
-                this.setState({ data: JSON.parse(data) })
+        return getDecks()
+            .then((decks) => {
+                console.log(decks)
+                this.props.dispatch(receiveDecks(decks))
             })
     }
     render() {
-        const { data } = this.state
+        const { decks } = this.props
 
-        if (data === null) {
+        if (decks === undefined) {
             return (
                 <View style={styles.decks}>
                     <Text>You have no decks yet!</Text>
@@ -37,11 +37,19 @@ export default class Decks extends React.Component {
 
         return (
             <View style={styles.decks} >
-                {Object.keys(data).map(key => <DeckLink key={key} deck={data[key]} />)}
+                {Object.keys(decks).map(key => <DeckLink key={key} deck={decks[key]} />)}
             </View>
         )
     }
 }
+
+function mapStateToProps(decks) {
+    return {
+        decks
+    }
+}
+
+export default connect(mapStateToProps)(Decks)
 
 const styles = StyleSheet.create({
     decks: {
