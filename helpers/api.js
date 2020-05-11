@@ -1,4 +1,4 @@
-import { AsyncStorage, View, Text, StyleSheet, TextInput, TouchableOpacity, TouchableHighlightBase } from 'react-native'
+import { AsyncStorage } from 'react-native'
 
 
 export const STORAGE_KEY = "STORAGE_KEY"

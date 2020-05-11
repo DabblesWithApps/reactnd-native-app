@@ -1,13 +1,14 @@
 import React from 'react'
-import { AsyncStorage, View, Text, StyleSheet, TextInput, TouchableOpacity, TouchableHighlightBase } from 'react-native'
-import { STORAGE_KEY } from '../constants'
-import { saveDeckTitle } from '../helpers/api'
+import { View, TouchableOpacity, KeyboardAvoidingView, TextInput, Text, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 import { addDeck } from '../actions'
+import { saveDeckTitle } from '../helpers/api'
+import styles from '../helpers/styles'
 
 class NewDeck extends React.Component {
     state = {
-        title: ''
+        title: '',
+        error: false
     }
     handleTextChange = (text) => {
         this.setState({
@@ -17,40 +18,46 @@ class NewDeck extends React.Component {
     handleSubmit = () => {
         const { title } = this.state
         const { dispatch } = this.props
-        saveDeckTitle(title).then(() => {
-            dispatch(addDeck(title))
-            this.props.navigation.reset()
-            this.props.navigation.navigate('Deck', { deck: { title } })
-        })
+
+        if (title === '') {
+            this.setState({
+                error: true
+            })
+        } else {
+            this.setState({
+                title: '',
+                error: false
+            }, () => {
+                saveDeckTitle(title).then(() => {
+                    dispatch(addDeck(title))
+                    this.props.navigation.navigate('Deck', { deck: { title } })
+                })
+            })
+        }
     }
     render() {
-        const { title } = this.state
+        const { title, error } = this.state
         return (
-            <View style={styles.newDeck} >
-                <Text>What is the title of your new deck?</Text>
-                <TextInput onChangeText={this.handleTextChange}
-                    placeholder="Deck Title"
-                    value={title}
-                    style={{ alignSelf: 'stretch', height: 40, borderColor: 'gray', borderWidth: 1, padding: 10, margin: 10 }}
-                />
-                <TouchableOpacity style={styles.submitBtn} onPress={this.handleSubmit}>
-                    <Text style={{ color: 'white' }}>Create Deck</Text>
-                </TouchableOpacity>
-            </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS == "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+            >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.center}>
+                        <Text>What is the title of your new deck?</Text>
+                        <TextInput onChangeText={this.handleTextChange}
+                            placeholder="Deck Title"
+                            value={title}
+                            style={[styles.input, error && { borderColor: 'red' }]}
+                        />
+                        <TouchableOpacity style={styles.formBtn} onPress={this.handleSubmit}>
+                            <Text style={{ color: 'white' }}>Create Deck</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
         )
     }
 }
 
 export default connect()(NewDeck)
-
-const styles = StyleSheet.create({
-    newDeck: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    submitBtn: {
-        backgroundColor: 'black',
-        padding: 10
-    }
-})

@@ -1,5 +1,6 @@
 import { AsyncStorage } from "react-native"
-import { Notifications, Permissions } from "expo"
+import { Notifications } from "expo"
+import * as Permissions from "expo-permissions"
 
 
 const NOTIFICATION_KEY = 'MobileFlashcards:notifications'
@@ -33,6 +34,7 @@ export function setLocalNotification() {
             if (data === null) {
                 Permissions.askAsync(Permissions.NOTIFICATIONS)
                     .then(({ status }) => {
+                        console.log(status)
                         if (status === 'granted') {
                             Notifications.cancelAllScheduledNotificationsAsync()
 

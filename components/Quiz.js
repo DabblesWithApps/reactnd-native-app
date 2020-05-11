@@ -1,8 +1,8 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
-import { useNavigation } from '@react-navigation/native'
 import { clearLocalNotification, setLocalNotification } from '../helpers/notification'
+import styles from '../helpers/styles'
 
 class Quiz extends React.Component {
     state = {
@@ -48,8 +48,13 @@ class Quiz extends React.Component {
 
         if (!deck.questions || deck.questions.length === 0) {
             return (
-                <View>
+                <View style={styles.center}>
                     <Text>This deck has no questions.</Text>
+                    <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                        <Text style={styles.btn}>
+                            Back to Deck
+                        </Text>
+                    </TouchableOpacity>
                 </View>
             )
         }
@@ -59,38 +64,40 @@ class Quiz extends React.Component {
 
         if (complete) {
             return (
-                <View>
+                <View style={styles.center}>
                     <Text>Score: {`${correct}/${questionCount}`}</Text>
-                    <TouchableOpacity onPress={this.resetQuiz}>
-                        <Text>
-                            Restart Quiz
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                        <Text>
-                            Back to Deck
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={styles.row}>
+                        <TouchableOpacity style={styles.formBtn} onPress={this.resetQuiz}>
+                            <Text style={styles.white}>
+                                Restart Quiz
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.formBtn} onPress={() => this.props.navigation.goBack()}>
+                            <Text style={styles.white}>
+                                Back to Deck
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )
         } else {
             const textToShow = showAnswer ? deck.questions[answered].answer : deck.questions[answered].question
             return (
-                <View>
+                <View style={styles.center}>
                     <Text>
                         Remaining cards: {`${questionCount - answered}`}
                     </Text>
                     <Text>
                         {textToShow}
                     </Text>
-                    <TouchableOpacity onPressIn={this.showAnswer} onPressOut={this.unshowAnswer}>
-                        <Text>Show Answer</Text>
+                    <TouchableOpacity style={styles.formBtn} onPressIn={this.showAnswer} onPressOut={this.unshowAnswer}>
+                        <Text style={styles.white}>Show Answer</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={this.handleCorrect}>
-                        <Text>Correct</Text>
+                    <TouchableOpacity style={styles.greenBtn} onPress={this.handleCorrect}>
+                        <Text style={styles.white}>Correct</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={this.handleIncorrect}>
-                        <Text>Incorrect</Text>
+                    <TouchableOpacity style={styles.redBtn} onPress={this.handleIncorrect}>
+                        <Text style={styles.white}>Incorrect</Text>
                     </TouchableOpacity>
                 </View>
             )

@@ -1,26 +1,42 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage } from 'react-native'
-import { createStackNavigator } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/native'
-import { STORAGE_KEY } from '../constants'
+import { ScrollView, View, Text, Animated, TouchableOpacity } from 'react-native'
 import { getDecks } from '../helpers/api'
 import { connect } from 'react-redux'
 import { receiveDecks } from '../actions'
+import styles from '../helpers/styles'
 
-const DeckLink = ({ deck }) => {
-    const navigation = useNavigation()
-    return (
-        <TouchableOpacity onPress={() => { navigation.push('Deck', { deck }) }}>
-            <Text>{deck.title}</Text>
-        </TouchableOpacity>
-    )
+class DeckLink extends React.Component {
+    state = {
+        bounceValue: new Animated.Value(1)
+    }
+    handlePress = () => {
+        const { deck, navigation } = this.props
+        const { bounceValue } = this.state
+        Animated.sequence([
+            Animated.timing(bounceValue, { duration: 200, toValue: 2.04 }),
+            Animated.spring(bounceValue, { toValue: 1, friction: 4 })
+        ]).start(() => navigation.push('Deck', { deck }))
+
+    }
+    render() {
+        const { bounceValue } = this.state
+        const { deck } = this.props
+        const questionCount = deck.questions ? deck.questions.length : 0
+        return (
+            <TouchableOpacity style={[styles.outlined, styles.center]} onPress={this.handlePress}>
+                <Animated.Text
+                    style={[styles.title, { transform: [{ scale: bounceValue }] }]}>{deck.title}
+                </Animated.Text>
+                <Text>Cards: {questionCount}</Text>
+            </TouchableOpacity>
+        )
+    }
 }
 
 class Decks extends React.Component {
     componentDidMount() {
         return getDecks()
             .then((decks) => {
-                console.log(decks)
                 this.props.dispatch(receiveDecks(decks))
             })
     }
@@ -29,16 +45,18 @@ class Decks extends React.Component {
 
         if (decks === undefined) {
             return (
-                <View style={styles.decks}>
+                <View style={styles.center}>
                     <Text>You have no decks yet!</Text>
                 </View>
             )
         }
 
         return (
-            <View style={styles.decks} >
-                {Object.keys(decks).map(key => <DeckLink key={key} deck={decks[key]} />)}
-            </View>
+            <ScrollView>
+                <View style={[styles.center, { alignItems: 'stretch' }]}>
+                    {Object.keys(decks).map(key => <DeckLink navigation={this.props.navigation} key={key} deck={decks[key]} />)}
+                </View>
+            </ScrollView>
         )
     }
 }
@@ -50,11 +68,3 @@ function mapStateToProps(decks) {
 }
 
 export default connect(mapStateToProps)(Decks)
-
-const styles = StyleSheet.create({
-    decks: {
-        flex: 1,
-        justifyContent: 'space-around',
-        alignItems: 'center'
-    }
-})

@@ -1,35 +1,19 @@
-import * as React from 'react';
-import { Text, View, StatusBar, AsyncStorage } from 'react-native';
+import React from 'react';
+import { View, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import Decks from './components/Decks'
-import Deck from './components/Deck'
-import NewDeck from './components/NewDeck'
-import Constants from 'expo-constants'
-import { STORAGE_KEY } from './constants'
-import Quiz from './components/Quiz'
-import AddCard from './components/AddCard'
-import { createStore } from 'redux'
 import { Provider } from 'react-redux'
+import { createStore } from 'redux'
 import decks from './reducers'
-import { receieveDecks } from './actions'
-import { getDecks } from './helpers/api'
 import { setLocalNotification } from './helpers/notification'
+import Deck from './components/Deck'
+import Constants from 'expo-constants'
+import Quiz from './components/Quiz'
+import Home from './components/Home'
+import AddCard from './components/AddCard'
 
 const store = createStore(decks)
-
-const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-function Home() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen name="Decks" component={Decks} />
-      <Tab.Screen name="New Deck" component={NewDeck} />
-    </Tab.Navigator>
-  );
-}
 
 export default class App extends React.Component {
   componentDidMount() {

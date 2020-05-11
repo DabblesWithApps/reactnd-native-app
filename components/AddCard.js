@@ -1,14 +1,15 @@
 import React from 'react'
-import { AsyncStorage, View, Text, StyleSheet, TextInput, TouchableOpacity, TouchableHighlightBase } from 'react-native'
-import { STORAGE_KEY } from '../constants'
+import { View, TouchableOpacity, KeyboardAvoidingView, TextInput, Text, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { addCardToDeck } from '../helpers/api'
 import { addCard } from '../actions'
 import { connect } from 'react-redux'
+import styles from '../helpers/styles'
 
 class AddCard extends React.Component {
     state = {
         question: '',
-        answer: ''
+        answer: '',
+        submitAttempt: false
     }
     handleTextChange = (text, name) => {
         this.setState({
@@ -17,20 +18,43 @@ class AddCard extends React.Component {
     }
     handleSubmit = () => {
         const { title } = this.props.route.params.deck
-        addCardToDeck(title, this.state).then(() => this.props.dispatch(addCard(title, this.state)))
+        const { question, answer } = this.state
+        const card = { question, answer }
+
+        if (question === '' || answer === '') {
+            this.setState({
+                submitAttempt: true
+            })
+        } else {
+            this.setState({
+                question: '',
+                answer: '',
+                submitAttempt: false
+            }, () => {
+                addCardToDeck(title, card).then(() => this.props.dispatch(addCard(title, card))).then(this.props.navigation.goBack())
+            })
+
+        }
     }
     render() {
-        const { question, answer } = this.state
+        const { question, answer, submitAttempt } = this.state
         return (
-            <View>
-                <Text>Question/Word</Text>
-                <TextInput value={question} onChangeText={(text) => this.handleTextChange(text, "question")} placeholder="What year was the Declaration of Independence signed?" />
-                <Text>Answer/Definition</Text>
-                <TextInput value={answer} onChangeText={(text) => this.handleTextChange(text, "answer")} placeholder="1776" />
-                <TouchableOpacity onPress={this.handleSubmit}>
-                    <Text>Submit Card</Text>
-                </TouchableOpacity>
-            </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS == "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+            >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.center}>
+                        <Text>Question/Word</Text>
+                        <TextInput style={[styles.input, (question === '' && submitAttempt) && styles.redBorder]} value={question} onChangeText={(text) => this.handleTextChange(text, "question")} placeholder="What year was the Declaration of Independence signed?" />
+                        <Text>Answer/Definition</Text>
+                        <TextInput style={[styles.input, (answer === '' && submitAttempt) && styles.redBorder]} value={answer} onChangeText={(text) => this.handleTextChange(text, "answer")} placeholder="1776" />
+                        <TouchableOpacity style={styles.formBtn} onPress={this.handleSubmit}>
+                            <Text style={{ color: 'white' }}>Submit Card</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
         )
     }
 }
